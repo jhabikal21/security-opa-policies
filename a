@@ -1,0 +1,67 @@
+Subject: Summary: EKS Migration Discussion – Redis & PostgreSQL Decisions
+
+Hi [Name/Team],
+
+Here’s a summary of today’s discussion on finalizing the migration approach for AWS EKS workloads to the Azure ecosystem.
+
+1. Redis Migration (Non-Core Workloads)
+
+Decision:
+
+We will proceed with two Redis instances for non-core workloads during migration:
+
+Redis 6: For existing services such as Pricing, Notification, etc.
+
+Redis 7: For Insights and Watchlist services.
+
+Migration will start with Dev and UAT, followed by Production.
+
+After migration, we will plan a separate exercise to refactor non-core services to Redis 7 for single Redis consolidation and cost optimization.
+
+Options Evaluated:
+a) Fix Insights/Watchlist to Redis 6 – saves cost but needs full QA cycle.
+b) Maintain Redis 6 & 7 (as-is lift & shift) – avoids QA delay. ✅ (Chosen)
+c) Upgrade all to Redis 7 – single Redis, but increases migration complexity.
+
+Estimated Cost (Azure UK South):
+
+Tier	Size	Approx. Monthly Cost (USD)
+Standard C1 (2.5 GB)	Dev / UAT	$65–$70
+Standard C2 (6 GB)	Prod	$130–$140
+Premium P1 (6 GB)	High Availability	$280–$300
+
+During migration (2 Redis instances): ~$260–$300/month
+
+Post-consolidation (1 Redis instance): ~$130–$150/month
+
+Expected saving: ~$130–$150/month after consolidation
+
+2. Azure Flexible PostgreSQL Migration
+
+Observation: Current Burstable SKU shows performance limitations.
+Microsoft Recommendation: Move to General Purpose SKU for improved stability.
+
+Action Plan:
+
+Work with DBA team to migrate Dev and UAT first, then extend to Prod and CPro.
+
+Estimated Cost (Azure UK South):
+
+Tier	vCore	Approx. Monthly Cost (USD)
+Burstable (B2s)	2 vCores / 4 GB	$70–$90
+General Purpose (GP2)	2 vCores / 8 GB	$180–$220
+General Purpose (GP4)	4 vCores / 16 GB	$260–$320
+
+Incremental cost: ~$100–$150/month per DB
+
+Benefit: Consistent performance and scalability
+
+Next Steps:
+
+Deploy Redis 6 & 7 in Dev/UAT → move to Prod.
+
+Begin PostgreSQL SKU migration (Dev/UAT → Prod → CPro).
+
+Plan Redis 7 code consolidation post-migration for cost optimization.
+
+Please review and confirm if we can proceed with the outlined next steps.
